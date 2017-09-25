@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'WKDB_Example' do
+  pod 'WKDB', :path => '../'
+
+  target 'WKDB_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
