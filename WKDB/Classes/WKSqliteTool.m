@@ -7,7 +7,7 @@
 //
 
 #import "WKSqliteTool.h"
-#import "sqlite3.h"
+#import <sqlite3/sqlite3.h>
 
 #define kCachePath NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject
 
@@ -88,7 +88,6 @@ sqlite3 *ppDb = nil;
             }
             [rowDic setValue:value forKey:columnName];
         }
-        
     }
     
     //重置

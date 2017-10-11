@@ -254,6 +254,9 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "wangkai_678@163.com";
 				TargetAttributes = {
+					6003F589195388D20070C39A = {
+						DevelopmentTeam = A28585LQM6;
+					};
 					6003F5AD195388D20070C39A = {
 						TestTargetID = 6003F589195388D20070C39A;
 					};
@@ -537,6 +540,7 @@
 			baseConfigurationReference = 3A27E29B1C0FCF6BD53A396A /* Pods-WKDB_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = A28585LQM6;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WKDB/WKDB-Prefix.pch";
 				INFOPLIST_FILE = "WKDB/WKDB-Info.plist";
@@ -552,6 +556,7 @@
 			baseConfigurationReference = 341290DF01495F1DC9D20684 /* Pods-WKDB_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = A28585LQM6;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WKDB/WKDB-Prefix.pch";
 				INFOPLIST_FILE = "WKDB/WKDB-Info.plist";
