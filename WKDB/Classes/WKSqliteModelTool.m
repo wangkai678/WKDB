@@ -8,17 +8,26 @@
 
 #import "WKSqliteModelTool.h"
 #import "WKModelTool.h"
+#import "WKSqliteTool.h"
 
 @implementation WKSqliteModelTool
 
-+ (void)createTable:(Class)cls uid:(NSString *)uid {
++ (BOOL)createTable:(Class)cls uid:(NSString *)uid {
     //创建表格的sql语句拼接出来
     
     //获取表名
     NSString *tableName = [WKModelTool tableName:cls];
     
+    if (![cls  respondsToSelector:@selector(primaryKey)]) {
+        NSLog(@"必须要实现这个方法，提供主键");
+        return NO;
+    }
+    NSString *primaryKey = [cls primaryKey];
     //获取一个模型里面所有的字段，以及类型
+    NSString *createTableSql = [NSString stringWithFormat:@"create table if not exists %@(%@, primary key(%@))",tableName,[WKModelTool columnNamesAndTypesStr:cls],primaryKey];
     
+    //执行
+    return [WKSqliteTool deal:createTableSql uid:uid];
 }
 
 + (void)saveModel:(id)model {

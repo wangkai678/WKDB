@@ -7,10 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "WKModelProtocol.h"
 
 @interface WKSqliteModelTool : NSObject
 
-+ (void)createTable:(Class)cls uid:(NSString *)uid;
++ (BOOL)createTable:(Class)cls uid:(NSString *)uid;
 
 + (void)saveModel:(id)model;
 

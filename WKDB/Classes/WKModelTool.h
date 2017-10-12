@@ -20,4 +20,5 @@
 
 + (NSString *)columnNamesAndTypesStr:(Class)cls;
 
+
 @end

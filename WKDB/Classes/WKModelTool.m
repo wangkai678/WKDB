@@ -50,6 +50,15 @@
     return  dic;
 }
 
++ (NSString *)columnNamesAndTypesStr:(Class)cls {
+    NSDictionary *nameTypeDic = [self classIvarNameSqliteTypeDic:cls];
+    NSMutableArray *result = [NSMutableArray array];
+    [nameTypeDic enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString * obj, BOOL * _Nonnull stop) {
+        [result addObject:[NSString stringWithFormat:@"%@ %@",key,obj]];
+    }];
+    return [result componentsJoinedByString:@","];
+}
+
 #pragma mark - 私有的方法
 + (NSDictionary *)ocTypeToSqliteTypeDic {
     return @{
@@ -70,5 +79,7 @@
              @"NSString" : @"text",
              };
 }
+
+
 
 @end
