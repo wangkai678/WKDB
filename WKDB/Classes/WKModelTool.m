@@ -8,6 +8,7 @@
 
 #import "WKModelTool.h"
 #import <objc/runtime.h>
+#import "WKModelProtocol.h"
 
 @implementation WKModelTool
 
@@ -20,12 +21,22 @@
     unsigned int outCount = 0;
     Ivar *varList = class_copyIvarList(cls, &outCount);
     NSMutableDictionary *nameTypeDic = [NSMutableDictionary dictionary];
+    
+    NSArray *ingoreNames = nil;
+    if ([cls respondsToSelector:@selector(ignoreColumnNames)]) {
+        ingoreNames = [cls ignoreColumnNames];
+    }
+    
     for (int i = 0; i < outCount; i++) {
         Ivar ivar = varList[i];
         //成员变量名称
         NSString *ivarName = [NSString stringWithUTF8String:ivar_getName(ivar)];
         if ([ivarName hasPrefix:@"_"]) {
             ivarName = [ivarName substringFromIndex:1];
+        }
+        
+        if ([ingoreNames containsObject:ivarName]) {
+            continue;
         }
         
         //成员变量类型
@@ -57,6 +68,16 @@
         [result addObject:[NSString stringWithFormat:@"%@ %@",key,obj]];
     }];
     return [result componentsJoinedByString:@","];
+}
+
++ (NSArray *)allTableSortedIvarNames:(Class)cls {
+    NSDictionary *dic = [self classIvarNameTypeDic:cls];
+    NSArray *keys = dic.allKeys;
+    keys = [keys sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        return [obj1 compare:obj2];
+    }];
+    
+    return keys;
 }
 
 #pragma mark - 私有的方法

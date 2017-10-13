@@ -10,6 +10,9 @@
 
 @protocol WKModelProtocol <NSObject>
 
+@required
 + (NSString *)primaryKey;
 
+@optional
++ (NSArray *)ignoreColumnNames;
 @end

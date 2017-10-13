@@ -20,5 +20,7 @@
 
 + (NSString *)columnNamesAndTypesStr:(Class)cls;
 
++ (NSArray *)allTableSortedIvarNames:(Class)cls;
+
 
 @end
