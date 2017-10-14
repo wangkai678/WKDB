@@ -7,6 +7,8 @@
 //
 
 #import "WKViewController.h"
+#import "WKSqliteModelTool.h"
+#import "WKStudent.h"
 
 @interface WKViewController ()
 
@@ -17,7 +19,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+//    [WKSqliteModelTool createTable:[WKStudent class] uid:@"123456"];
+//    NSLog(@"%@",NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject);
+    
+    [WKSqliteModelTool updateTable:[WKStudent class] uid:@"123456"];
 }
 
 - (void)didReceiveMemoryWarning

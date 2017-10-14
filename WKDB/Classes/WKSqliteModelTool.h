@@ -13,9 +13,12 @@
 
 + (BOOL)createTable:(Class)cls uid:(NSString *)uid;
 
-+ (void)saveModel:(id)model;
-
 //数据库表是否需要更新
 + (BOOL)isTableRequiredUpdate:(Class)cls uid:(NSString *)uid;
+
++ (BOOL)updateTable:(Class)cls uid:(NSString *)uid;
+
++ (void)saveModel:(id)model;
+
 
 @end

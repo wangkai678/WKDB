@@ -20,4 +20,6 @@
 @property (nonatomic, assign) float score;
 @property (nonatomic, assign) float score2;
 
+//@property (nonatomic, copy) NSString *sex;
+
 @end

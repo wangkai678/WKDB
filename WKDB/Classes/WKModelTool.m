@@ -16,6 +16,10 @@
     return NSStringFromClass(cls);
 }
 
++ (NSString *)tmpTableName:(Class)cls {
+    return [NSStringFromClass(cls) stringByAppendingString:@"_tmp"];
+}
+
 + (NSDictionary *)classIvarNameTypeDic:(Class)cls {
     
     unsigned int outCount = 0;

@@ -41,7 +41,7 @@ sqlite3 *ppDb = nil;
     //参数4准备语句
     //参数5:通过参数3，取出参数2的长度子节之后，剩下的字符串
     sqlite3_stmt *ppStmt = nil;
-    if (sqlite3_prepare_v2(ppDb, sql.UTF8String, -1, &ppStmt, nil) == SQLITE_OK) {
+    if (sqlite3_prepare_v2(ppDb, sql.UTF8String, -1, &ppStmt, nil) != SQLITE_OK) {
         NSLog(@"准备语句编译失败");
         return nil;
     }
@@ -100,6 +100,34 @@ sqlite3 *ppDb = nil;
     return rowDicArray;
 }
 
++ (BOOL)dealSqls:(NSArray<NSString *>*)sqls uid:(NSString *)uid {
+    [self beginTransaction:uid];
+    for (NSString *sql in sqls) {
+        BOOL result = [self deal:sql uid:uid];
+        if (result == NO) {
+            [self rollBackTransaction:uid];
+            return NO;
+        }
+    }
+    [self commitTransaction:uid];
+    return YES;
+}
+
+//开始事务
++ (void)beginTransaction:(NSString *)uid {
+    [self deal:@"begin transaction" uid:uid];
+}
+
+//提交事务
++ (void)commitTransaction:(NSString *)uid {
+    [self deal:@"commit transaction" uid:uid];
+}
+
+//回滚事务
++ (void)rollBackTransaction:(NSString *)uid {
+    [self deal:@"rollback transaction" uid:uid];
+}
+
 #pragma mark - 私有方法
 + (BOOL)openDB:(NSString *)uid {
     NSString *dbName = @"common.sqlite";
@@ -109,8 +137,8 @@ sqlite3 *ppDb = nil;
     
     NSString * dbPath = [kCachePath stringByAppendingPathComponent:dbName];
     
-    //打开一个数据库没有救打开
-   return sqlite3_open(dbPath.UTF8String, &ppDb) != SQLITE_OK;
+    //打开一个数据库没有就创建
+   return sqlite3_open(dbPath.UTF8String, &ppDb) == SQLITE_OK;
 }
 
 + (void)closeDB {

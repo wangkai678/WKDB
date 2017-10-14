@@ -12,6 +12,8 @@
 
 + (NSString *)tableName:(Class)cls;
 
++ (NSString *)tmpTableName:(Class)cls;
+
 //所有成员变量以及对应的类型
 + (NSDictionary *)classIvarNameTypeDic:(Class)cls;
 

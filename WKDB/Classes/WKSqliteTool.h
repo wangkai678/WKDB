@@ -13,4 +13,7 @@
 + (BOOL)deal:(NSString *)sql uid:(NSString *)uid;
 
 + (NSMutableArray<NSMutableDictionary *>*)querySql:(NSString *)sql uid:(NSString *)uid;
+
+//处理执行多条sql语句
++ (BOOL)dealSqls:(NSArray<NSString *>*)sqls uid:(NSString *)uid;
 @end
