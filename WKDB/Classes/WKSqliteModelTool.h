@@ -16,9 +16,11 @@
 //数据库表是否需要更新
 + (BOOL)isTableRequiredUpdate:(Class)cls uid:(NSString *)uid;
 
+//更新表格
 + (BOOL)updateTable:(Class)cls uid:(NSString *)uid;
 
-+ (void)saveModel:(id)model;
+//保存或更新表格
++ (BOOL)saveOrUpdateModel:(id)model uid:(NSString *)uid;
 
 
 @end

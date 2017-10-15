@@ -12,4 +12,5 @@
 
 + (NSArray *)tableSortedColumnNames:(Class)cls uid:(NSString *)uid;
 
++ (BOOL)isTableExists:(Class)cls uid:(NSString *)uid;
 @end

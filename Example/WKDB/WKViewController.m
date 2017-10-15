@@ -22,7 +22,19 @@
 //    [WKSqliteModelTool createTable:[WKStudent class] uid:@"123456"];
 //    NSLog(@"%@",NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject);
     
-    [WKSqliteModelTool updateTable:[WKStudent class] uid:@"123456"];
+//    [WKSqliteModelTool updateTable:[WKStudent class] uid:@"123456"];
+//    @property (nonatomic, assign) int stuNum;
+//    @property (nonatomic, copy) NSString *name;
+//    @property (nonatomic, assign) int age;
+//    @property (nonatomic, assign) float score;
+//    @property (nonatomic, assign) float score2;
+    WKStudent *s = [[WKStudent alloc] init];
+    s.stuNum = 1;
+    s.name = @"名字";
+    s.age = 16;
+    s.score = 100;
+    s.score2 = 122;
+    [WKSqliteModelTool saveOrUpdateModel:s uid:@"123"] ;
 }
 
 - (void)didReceiveMemoryWarning

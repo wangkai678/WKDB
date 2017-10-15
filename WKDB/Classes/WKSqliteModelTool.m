@@ -64,11 +64,25 @@
     //根据主键，把所有的数据更新到表里面
     NSArray *oldNames = [WKTableTool tableSortedColumnNames:cls uid:uid];
     NSArray *newNames = [WKModelTool allTableSortedIvarNames:cls];
+    
+    //获取更名的字典
+    NSDictionary *newNameToOldNameDic = @{};
+    if ([cls respondsToSelector:@selector(newNameToOldNameDic)]) {
+        newNameToOldNameDic = [cls newNameToOldNameDic];
+    }
+    
     for (NSString *columnName in newNames) {
-        if (![oldNames containsObject:columnName]) {
+        //更新临时表,当更改模型的成员变量名称的时候
+        NSString *oldName = columnName;
+        if ([newNameToOldNameDic[columnName] length] != 0) {
+            oldName = newNameToOldNameDic[columnName];
+        }
+        
+        if ((![oldNames containsObject:columnName] && ![oldNames containsObject:oldName]) || [columnName isEqualToString:primaryKey]) {
             continue;
         }
-        NSString *updateSql = [NSString stringWithFormat:@"update %@ set %@ = (select %@ from %@ where %@.%@ = %@.%@)",tmpTableName,columnName,columnName,tableName,tmpTableName,primaryKey,tableName,primaryKey];
+        
+        NSString *updateSql = [NSString stringWithFormat:@"update %@ set %@ = (select %@ from %@ where %@.%@ = %@.%@)",tmpTableName,columnName,oldName,tableName,tmpTableName,primaryKey,tableName,primaryKey];
         [execSqls addObject:updateSql];
     }
     
@@ -83,8 +97,59 @@
     return [WKSqliteTool dealSqls:execSqls uid:uid];
 }
 
-+ (void)saveModel:(id)model {
++ (BOOL)saveOrUpdateModel:(id)model uid:(NSString *)uid{
+   
+    //判断表格是否存在，不存在则创建
+    Class cls = [model class];
+    if (![WKTableTool isTableExists:cls uid:uid]) {
+        [self createTable:cls uid:uid];
+    }
     
+    //检测表格是否需要更新，需要则更新
+    if ([self isTableRequiredUpdate:cls uid:uid]) {
+        [self updateTable:cls uid:uid];
+    }
+    
+    //判断记录是否存在，如果在则更新，否则插入
+    NSString *tableName = [WKModelTool tableName:cls];
+    
+    if (![cls  respondsToSelector:@selector(primaryKey)]) {
+        NSLog(@"必须要实现这个方法，提供主键");
+        return NO;
+    }
+    NSString *primaryKey = [cls primaryKey];
+    id primaryValue = [model valueForKeyPath:primaryKey];
+    
+    NSString *checkSql = [NSString stringWithFormat:@"select * from %@ where %@ = '%@'",tableName,primaryKey,primaryValue];
+    NSArray *result = [WKSqliteTool querySql:checkSql uid:uid];
+    
+    //获取字段数组
+    NSArray *columnNames = [WKModelTool classIvarNameTypeDic:cls].allKeys;
+    
+    NSMutableArray *values = [NSMutableArray array];
+    for (NSString *columnName in columnNames) {
+        id value = [model valueForKeyPath:columnName];
+        [values addObject:value];
+    }
+    
+    NSInteger count = columnNames.count;
+    NSMutableArray *setValueArray = [NSMutableArray array];
+    for (int i = 0; i < count; i++) {
+        NSString *name = columnNames[i];
+        id value = values[i];
+        NSString *setStr = [NSString stringWithFormat:@"%@='%@'",name,value];
+        [setValueArray addObject:setStr];
+    }
+    
+    NSString *execSql = @"";
+    if (result.count > 0) {
+        //更新
+        execSql = [NSString stringWithFormat:@"update %@ set %@ where %@ = '%@'",tableName,[setValueArray componentsJoinedByString:@","],primaryKey,primaryValue];
+    } else {
+        //插入
+        execSql = [NSString stringWithFormat:@"insert into %@(%@) values('%@')",tableName,[columnNames componentsJoinedByString:@","],[values componentsJoinedByString:@"','"]];
+    }
+    return [WKSqliteTool deal:execSql uid:uid];
 }
 
 @end
