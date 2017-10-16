@@ -1,0 +1,6 @@
+framework module Pods_WKDB_Example {
+  umbrella header "Pods-WKDB_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}

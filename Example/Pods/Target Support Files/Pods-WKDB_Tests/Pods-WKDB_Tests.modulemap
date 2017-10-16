@@ -1,0 +1,6 @@
+framework module Pods_WKDB_Tests {
+  umbrella header "Pods-WKDB_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}

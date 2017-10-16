@@ -1,0 +1,6 @@
+framework module WKDB {
+  umbrella header "WKDB-umbrella.h"
+
+  export *
+  module * { export * }
+}
