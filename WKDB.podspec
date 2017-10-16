@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
 WKDB.sqlite封装
                        DESC
 
-  s.homepage         = 'https://github.com/wangkai_678@163.com/WKDB'
+  s.homepage         = 'https://github.com/wangkai678/WKDB'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'wangkai_678@163.com' => 'kai.wang@srgroup.cn' }
