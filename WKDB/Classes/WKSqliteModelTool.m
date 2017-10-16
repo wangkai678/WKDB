@@ -123,12 +123,17 @@
     NSString *checkSql = [NSString stringWithFormat:@"select * from %@ where %@ = '%@'",tableName,primaryKey,primaryValue];
     NSArray *result = [WKSqliteTool querySql:checkSql uid:uid];
     
-    //获取字段数组
+    //获取字段名称数组
     NSArray *columnNames = [WKModelTool classIvarNameTypeDic:cls].allKeys;
     
     NSMutableArray *values = [NSMutableArray array];
     for (NSString *columnName in columnNames) {
         id value = [model valueForKeyPath:columnName];
+        if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSDictionary class]]) {
+            //把字典或者数据处理成字符串，保存到数据库里面去
+            NSData *data = [NSJSONSerialization dataWithJSONObject:value options:NSJSONWritingPrettyPrinted error:nil];
+            value = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        }
         [values addObject:value];
     }
     
@@ -150,6 +155,94 @@
         execSql = [NSString stringWithFormat:@"insert into %@(%@) values('%@')",tableName,[columnNames componentsJoinedByString:@","],[values componentsJoinedByString:@"','"]];
     }
     return [WKSqliteTool deal:execSql uid:uid];
+}
+
++ (BOOL)deleteModel:(id)model uid:(NSString *)uid {
+    Class cls = [model class];
+    NSString *tableName = [WKModelTool tableName:cls];
+    
+    if (![cls  respondsToSelector:@selector(primaryKey)]) {
+        NSLog(@"必须要实现这个方法，提供主键");
+        return NO;
+    }
+    NSString *primaryKey = [cls primaryKey];
+    id primaryValue = [model valueForKeyPath:primaryKey];
+
+    NSString *deleteSql = [NSString stringWithFormat:@"delete from %@ where %@ = '%@'",tableName,primaryKey,primaryValue];
+    
+    return [WKSqliteTool deal:deleteSql uid:uid];
+}
+
++ (BOOL)deleteModel:(Class)cls whereStr:(NSString *)whereStr uid:(NSString *)uid {
+    NSString *tableName = [WKModelTool tableName:cls];
+    NSString *deleteSql = [NSString stringWithFormat:@"delete from %@",tableName];
+    if (whereStr.length > 0) {
+        deleteSql = [deleteSql stringByAppendingFormat:@" where %@",whereStr];
+    }
+    return [WKSqliteTool deal:deleteSql uid:uid];
+}
+
++ (BOOL)deleteModel:(Class)cls columnName:(NSString *)name relation:(ColumnNameToValueRelationType)relation value:(id)value uid:(NSString *)uid {
+    NSString *tableName = [WKModelTool tableName:cls];
+    NSString *deleteSql = [NSString stringWithFormat:@"delete from %@ where %@ %@ '%@'",tableName,name,self.ColumnNameToValueRelationTypeDic[@(relation)],value];
+    return [WKSqliteTool deal:deleteSql uid:uid];
+}
+
++ (NSArray *)queryAllModels:(Class)cls uid:(NSString *)uid  {
+    NSString *tableName = [WKModelTool tableName:cls];
+    NSString *sql = [NSString stringWithFormat:@"select * from %@",tableName];
+    NSArray <NSDictionary *>*results = [WKSqliteTool querySql:sql uid:uid];
+    
+    return [self parseResults:results withClass:cls];
+}
+
++ (NSArray *)queryModels:(Class)cls columnName:(NSString *)name relation:(ColumnNameToValueRelationType)relation value:(id)value uid:(NSString *)uid {
+    NSString *tableName = [WKModelTool tableName:cls];
+    NSString *sql = [NSString stringWithFormat:@"select * from %@ where %@ %@ '%@'",tableName,name,self.ColumnNameToValueRelationTypeDic[@(relation)],value];
+    NSArray <NSDictionary *>*results = [WKSqliteTool querySql:sql uid:uid];
+    
+    return [self parseResults:results withClass:cls];
+}
+
++ (NSArray *)queryModels:(Class)cls withSql:(NSString *)sql uid:(NSString *)uid {
+    NSArray <NSDictionary *>*results = [WKSqliteTool querySql:sql uid:uid];
+     return [self parseResults:results withClass:cls];
+}
+
++ (NSArray *)parseResults:(NSArray <NSDictionary *>*)results withClass:(Class)cls {
+    NSMutableArray *models = [NSMutableArray array];
+    
+    //属性名称类型
+    NSDictionary *nameTypeDic = [WKModelTool classIvarNameTypeDic:cls];
+    
+    for (NSDictionary *modelDic in results) {
+        id model = [[cls alloc] init];
+        [models addObject:model];
+        [modelDic enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            NSString *type = nameTypeDic[key];
+            id resultValue = obj;
+            if ([type isEqualToString:@"NSArray"] || [type isEqualToString:@"NSDictionary"]) {
+                NSData *data = [obj dataUsingEncoding:NSUTF8StringEncoding];
+                resultValue = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+            }else if ([type isEqualToString:@"NSMutableArray"] || [type isEqualToString:@"NSMutableDictionary"]){
+                NSData *data = [obj dataUsingEncoding:NSUTF8StringEncoding];
+                resultValue = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            }
+            [model setValue:resultValue forKeyPath:key];
+        }];
+    }
+    return models;
+}
+
+
++ (NSDictionary *)ColumnNameToValueRelationTypeDic {
+    return @{
+             @(ColumnNameToValueRelationTypeMore):@">",
+              @(ColumnNameToValueRelationTypeLess):@"<",
+              @(ColumnNameToValueRelationTypeEqual):@"=",
+              @(ColumnNameToValueRelationTypeMoreEqual):@">=",
+              @(ColumnNameToValueRelationTypeLessEqual):@"<="
+             };
 }
 
 @end
